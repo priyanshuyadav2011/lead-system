@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Capture System</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #121212; 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: #1e1e1e; 
+            padding: 30px; 
+            border-radius: 10px; 
+            width: 300px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+        }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+        }
+        button { 
+            width: 100%; 
+            padding: 10px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        button:hover { 
+            background: #0056b3; 
+        }
+        button[type="reset"] {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+        button[type="reset"]:hover {
+            background: #bd2130;
+        }
+        #status { 
+            margin-top: 15px; 
+            font-size: 14px; 
+            text-align: center; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Get Started Now</h2>
+        <form id="leadForm">
+            <input type="text" id="name" placeholder="Full Name" required><br>
+            <input type="email" id="email" placeholder="Email Address" required><br>
+            <input type="tel" id="phone" placeholder="Phone Number" required><br>
+            <button type="submit">Submit Data</button>
+            <button type="reset">Clear Form</button>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('leadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerText = "Submitting...";
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            };
+
+            fetch('http://127.0.0.1:5000/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                statusDiv.innerText = "Data submitted successfully!";
+                document.getElementById('leadForm').reset();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                statusDiv.innerText = "Error submitting data.";
+            });
+        });
+    </script>
+
+</body>
+</html>
