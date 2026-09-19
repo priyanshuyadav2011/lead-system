@@ -3,79 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lead Capture System</title>
+    <title>Lead Capture Form</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background: #121212; 
-            color: #fff; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-        }
-        .card { 
-            background: #1e1e1e; 
-            padding: 30px; 
-            border-radius: 10px; 
-            width: 300px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-        }
-        input { 
-            width: 100%; 
-            padding: 10px; 
-            margin: 10px 0; 
-            border: none; 
-            border-radius: 5px; 
-            box-sizing: border-box; 
-        }
-        button { 
-            width: 100%; 
-            padding: 10px; 
-            background: #007bff; 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
-        button:hover { 
-            background: #0056b3; 
-        }
-        button[type="reset"] {
-            background: #dc3545;
-            margin-top: 10px;
-        }
-        button[type="reset"]:hover {
-            background: #bd2130;
-        }
-        #status { 
-            margin-top: 15px; 
-            font-size: 14px; 
-            text-align: center; 
-        }
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .form-container { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 300px; }
+        h2 { margin-bottom: 15px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        #message { margin-top: 15px; text-align: center; font-size: 14px; }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <h2>Get Started Now</h2>
+    <div class="form-container">
+        <h2>Submit Lead</h2>
         <form id="leadForm">
-            <input type="text" id="name" placeholder="Full Name" required><br>
-            <input type="email" id="email" placeholder="Email Address" required><br>
-            <input type="tel" id="phone" placeholder="Phone Number" required><br>
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="tel" id="phone" placeholder="Phone Number" required>
             <button type="submit">Submit Data</button>
-            <button type="reset">Clear Form</button>
         </form>
-        <div id="status"></div>
+        <div id="message"></div>
     </div>
 
     <script>
         document.getElementById('leadForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "Submitting...";
+            const msgDiv = document.getElementById('message');
+            msgDiv.innerText = "Submitting...";
 
             const data = {
                 name: document.getElementById('name').value,
@@ -83,24 +38,23 @@
                 phone: document.getElementById('phone').value
             };
 
-            fetch('https://lead-system-6a62.onrender.com/submit', {
+            fetch('https://script.google.com/macros/s/AKfycbzJd64doPN1A4lCkWsfKF0eg7WPRGh1l_tbGjvso4Pkp0sBcC4D8DFcRfuurz5gUEb-GQ/exec', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
             })
-            .then(response => response.json())
-            .then(data => {
-                statusDiv.innerText = "Data submitted successfully!";
+            .then(() => {
+                msgDiv.style.color = "green";
+                msgDiv.innerText = "Data submitted successfully!";
                 document.getElementById('leadForm').reset();
             })
-            .catch((error) => {
+            .catch(error => {
+                msgDiv.style.color = "red";
+                msgDiv.innerText = "Error submitting data.";
                 console.error('Error:', error);
-                statusDiv.innerText = "Error submitting data.";
             });
         });
     </script>
-
 </body>
 </html>
