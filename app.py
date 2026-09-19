@@ -1,36 +1,43 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import gspread
-from datetime import datetime
+from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
 CORS(app)
 
+# Google Sheets Setup
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
 try:
-    gc = gspread.service_account(filename='credentials.json')
-    sheet = gc.open("Lead Capture Database").sheet1 
+    creds = Credentials.from_service_account_file('credentials.json', scopes=SCOPES)
+    client = gspread.authorize(creds)
+    sheet = client.open("Lead Capture Database").sheet1
+    print("Google Sheets setup successfully!")
 except Exception as e:
-    print("Google Sheets Setup Error:", e)
+    print(f"Google Sheets Setup Error: {e}")
+    sheet = None
 
-@app.route('/submit', methods=['POST', 'OPTIONS'])
+@app.route('/submit', methods=['POST'])
 def submit():
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'ok'}), 200
-
-    data = request.json
-    name = data.get('name')
-    email = data.get('email')
-    phone = data.get('phone')
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if not sheet:
+        return jsonify({"status": "error", "message": "Google Sheets not connected"}), 500
 
     try:
-        # Timestamp ke saath bhej rahe hain taaki har column match ho
-        sheet.append_row([timestamp, name, email, phone])
-        print(f"Data Added: {name}, {email}, {phone}")
-        return jsonify({'status': 'success', 'message': 'Data added to Google Sheet!'})
+        data = request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        phone = data.get('phone')
+
+        # Append row to Google Sheet
+        sheet.append_row([name, email, phone])
+        return jsonify({"status": "success", "message": "Data saved successfully!"}), 200
     except Exception as e:
-        print("Error saving to sheet:", e)
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        print(f"Error saving to sheet: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000)
